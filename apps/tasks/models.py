@@ -22,7 +22,8 @@ class Category(UniqueId):
         verbose_name = _('Category')
         verbose_name_plural = _('Categories')
         # unique_together = ('name', ) # obsolete, as I understood
-        constraints = [models.UniqueConstraint(fields=['name'], name='unique_category_name')]
+        constraints = [models.UniqueConstraint(fields=['name'], name='unique_category_name',
+                                               violation_error_message='Such a Category already exists!')]
 
 
 class Task(UniqueId):
@@ -51,7 +52,8 @@ class Task(UniqueId):
         # unique_together = ('title', 'created_at') # obsolete, as I understood
         constraints = [
             models.UniqueConstraint('title', TruncDate('created_at'),
-                                    name='unique_title_by_creation_date')
+                                    name='unique_title_by_creation_date',
+                                    violation_error_message='Such a Task already exists!')
         ]
 
 
@@ -79,5 +81,6 @@ class SubTask(UniqueId):
         verbose_name_plural = _('SubTasks')
         # unique_together = ('title', 'created_at') # obsolete, as I understood
         constraints = [models.UniqueConstraint('title', TruncDate('created_at'),
-                                             name='unique_subtask_title_by_creation_date')]
+                                             name='unique_subtask_title_by_creation_date',
+                                             violation_error_message='Such a SubTask already exists!')]
 
