@@ -21,7 +21,7 @@ class TaskAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     inlines = [SubTaskInline]
 
-    @admin.display(description='Description')
+    @admin.display(description='Title')
     def short_title(self, task):
         if task.title and len(task.title) > 10:
             return f'{task.title[:10]}...'
