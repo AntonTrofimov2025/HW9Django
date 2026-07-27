@@ -27,8 +27,8 @@ class Category(UniqueId):
 
 
 class Task(UniqueId):
-    title = models.CharField(max_length=25, validators=[MinLengthValidator(3)], verbose_name='Title',
-                             unique_for_date='created_at')
+    title = models.CharField(max_length=25, validators=[MinLengthValidator(3)], verbose_name='Title')
+                             # unique_for_date='created_at' NOT ACTUAL ALREADY BECAUSE OF UniqueConstraint
     # created_at = models.DateTimeField(default=timezone.now, verbose_name='Creation date')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Creation date')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Updated at')
