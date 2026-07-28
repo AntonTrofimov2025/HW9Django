@@ -7,7 +7,7 @@ from django.db.models import Count, Q
 from django.utils import timezone
 
 
-@api_view(['GET', 'POST', 'PUT', 'PATCH'])
+@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
 def tasks_requests(request, id_=None):
     if request.method == 'GET' and id_ is not None:
         try:
@@ -31,6 +31,8 @@ def tasks_requests(request, id_=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method in ['PUT', 'PATCH']:
+        if id_ is None:
+            return Response({'error': 'Methods PUT PATCH require an ID'}, status=status.HTTP_400_BAD_REQUEST)
         try:
             task = Task.objects.get(id=id_)
         except Task.DoesNotExist:
@@ -47,20 +49,31 @@ def tasks_requests(request, id_=None):
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    elif request.method == 'DELETE':
+        if id_ is None:
+            return Response({'error': 'Method DELETE requires an ID'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            task = Task.objects.get(id=id_)
+        except Task.DoesNotExist:
+            return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        task.delete()
+        return Response({'msg': f'Task ({id_}) has been successfully deleted!'}, status=status.HTTP_200_OK)
+
 # @api_view(['GET'])
 # def tasks_by_status(request, status_):
 #     statuses = {status__.label: status__.value for status__ in Statuses}
 #     if request.method == 'GET' and status_ is not None and status_ in statuses:
 #         tasks_by_st = Task.objects.filter(status=statuses[status_]).aggregate(tasks_count=Count('id'))['tasks_count']
-#         return Response({'Found tasks by status': tasks_by_st}, status=status.HTTP_200_OK)
+#         return Response({f'Found tasks by status {status_}': tasks_by_st}, status=status.HTTP_200_OK)
 #     else:
 #         return Response({'msg': 'This status not found :('}, status=status.HTTP_404_NOT_FOUND)
 #
 # @api_view(['GET'])
 # def tasks_count_all(request):
 #     if request.method == 'GET':
-#         tasks_count = Task.objects.aggregate(tasks_count=Count('id'))['tasks_count']
-#         return Response({'Tasks found': tasks_count}, status=status.HTTP_200_OK)
+#         tasks_count = Task.objects.aggregate(tasks_count=Count('id'))['tasks_count'] # OR JUST Task.objects.all().count()
+#         return Response({'Tasks found': tasks_count}, status=status.HTTP_200_OK)     # MUCH EASIER :)
 #
 # @api_view(['GET'])
 # def tasks_expired_date(request):
