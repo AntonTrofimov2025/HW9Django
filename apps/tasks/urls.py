@@ -18,11 +18,11 @@ from django.urls import path
 from . import views as tasks_
 
 urlpatterns = [
+    path('tasks/statistics/', tasks_.tasks_aggregate_all, name='tasks_statistics'),
     path('tasks/<uuid:id_>/', tasks_.tasks_requests, name='task-get-one-or-update'),
     path('tasks/', tasks_.tasks_requests, name='task-all-or-create'),
     # path('tasks/count/', tasks_.tasks_count_all, name='task-count-all'),
     # path('tasks/status/<str:status_>', tasks_.tasks_by_status, name='task-count-by-status'),
-    # path('tasks/expired/', tasks_.tasks_expired_date, name='task-expired-date'),
-    path('tasks/statistics/', tasks_.tasks_aggregate_all, name='tasks_statistics')
+    # path('tasks/expired/', tasks_.tasks_expired_date, name='task-expired-date')
 ]
 
