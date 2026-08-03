@@ -16,11 +16,14 @@ Including another URLconf
 """
 from django.urls import path
 from . import views as tasks_
+from .api_views import SubTaskDetailUpdateDeleteView, SubTaskListCreateView
 
 urlpatterns = [
     path('tasks/statistics/', tasks_.tasks_aggregate_all, name='tasks-statistics'),
     path('tasks/<uuid:id_>/', tasks_.tasks_requests, name='task-get-one-or-update-or-delete'),
     path('tasks/', tasks_.tasks_requests, name='task-get-all-or-create'),
+    path('subtasks/<uuid:pk>/', SubTaskDetailUpdateDeleteView.as_view(), name='subtask-get-update-delete'),
+    path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-get-all-or-create'),
     # path('tasks/count/', tasks_.tasks_count_all, name='task-count-all'),
     # path('tasks/status/<str:status_>', tasks_.tasks_by_status, name='task-count-by-status'),
     # path('tasks/expired/', tasks_.tasks_expired_date, name='task-expired-date')

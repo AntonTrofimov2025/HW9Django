@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from apps.tasks.models import Task, Statuses
-from apps.tasks.serializers import TaskSerializer
+from apps.tasks.serializers import TaskSerializer, TaskDetailSerializer
 from django.db.models import Count, Q
 from django.utils import timezone
 
@@ -14,7 +14,7 @@ def tasks_requests(request, id_=None):
             task = Task.objects.get(id=id_)
         except Task.DoesNotExist:
             return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = TaskSerializer(task)
+        serializer = TaskDetailSerializer(task)
         return Response({'Task found': serializer.data}, status=status.HTTP_200_OK)
 
     elif request.method == 'GET':
