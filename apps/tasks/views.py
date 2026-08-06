@@ -5,20 +5,28 @@ from apps.tasks.models import Task, Statuses
 from apps.tasks.serializers import TaskSerializer, TaskDetailSerializer
 from django.db.models import Count, Q
 from django.utils import timezone
+from rest_framework.generics import get_object_or_404
 
 
 @api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
-def tasks_requests(request, id_=None):
-    if request.method == 'GET' and id_ is not None:
-        try:
-            task = Task.objects.get(id=id_)
-        except Task.DoesNotExist:
-            return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+def tasks_requests(request, pk=None):
+    if request.method == 'GET' and pk is not None:
+        # try:
+        #     task = Task.objects.get(pk=pk)
+        # except Task.DoesNotExist:
+        #     return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+        task = get_object_or_404(Task, pk=pk)
         serializer = TaskDetailSerializer(task)
-        return Response({'Task found': serializer.data}, status=status.HTTP_200_OK)
+        # return Response({'Task found': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     elif request.method == 'GET':
         tasks = Task.objects.all()
+        filter_ = {}
+        if deadline := request.query_params.get('weekday'):
+            filter_['deadline__week_day'] = deadline
+        tasks = tasks.filter(**filter_)
+
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -26,17 +34,19 @@ def tasks_requests(request, id_=None):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'msg': f"New Task {serializer.validated_data['title']} has been successfully added! :)"},
-                            status=status.HTTP_201_CREATED)
+            # return Response({'msg': f"New Task {serializer.validated_data['title']} has been successfully added! :)"},
+            #                 status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method in ['PUT', 'PATCH']:
-        if id_ is None:
+        if pk is None:
             return Response({'error': 'Methods PUT PATCH require an ID'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            task = Task.objects.get(id=id_)
-        except Task.DoesNotExist:
-            return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+        # try:
+        #     task = Task.objects.get(pk=pk)
+        # except Task.DoesNotExist:
+        #     return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+        task = get_object_or_404(Task, pk=pk)
 
         is_partial = request.method == 'PATCH'
 
@@ -50,15 +60,17 @@ def tasks_requests(request, id_=None):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':
-        if id_ is None:
+        if pk is None:
             return Response({'error': 'Method DELETE requires an ID'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            task = Task.objects.get(id=id_)
-        except Task.DoesNotExist:
-            return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+        # try:
+        #     task = Task.objects.get(pk=pk)
+        # except Task.DoesNotExist:
+        #     return Response({'error': 'Task not found'}, status=status.HTTP_404_NOT_FOUND)
+        task = get_object_or_404(Task, pk=pk)
 
         task.delete()
-        return Response({'msg': f'Task ({id_}) has been successfully deleted!'}, status=status.HTTP_200_OK)
+        # return Response({'msg': f'Task ({pk}) has been successfully deleted!'}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 # @api_view(['GET'])
 # def tasks_by_status(request, status_):
