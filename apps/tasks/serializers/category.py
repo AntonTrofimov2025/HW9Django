@@ -15,8 +15,7 @@ class CategoryCreateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         name = validated_data.get('name')
-        if name:
-            if Category.objects.filter(name=name).exclude(pk=instance.pk).exists():
+        if name and Category.objects.filter(name=name).exclude(pk=instance.pk).exists():
                 raise serializers.ValidationError('This category name already exists.')
         return super().update(instance, validated_data)
 
