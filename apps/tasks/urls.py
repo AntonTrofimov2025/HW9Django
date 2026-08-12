@@ -16,12 +16,17 @@ Including another URLconf
 """
 from django.urls import path
 from . import views as tasks_
-from .api_views import SubTaskDetailUpdateDeleteView, SubTaskListCreateView
+# from .api_views import SubTaskDetailUpdateDeleteView, SubTaskListCreateView
+from .generic_api_views import (TaskStatistics, SubTaskDetailUpdateDeleteView,
+                                SubTaskListCreateView, TaskDetailUpdateDeleteView, TaskListCreateView)
 
 urlpatterns = [
-    path('tasks/statistics/', tasks_.tasks_aggregate_all, name='tasks-statistics'),
-    path('tasks/<uuid:pk>/', tasks_.tasks_requests, name='task-get-one-or-update-or-delete'),
-    path('tasks/', tasks_.tasks_requests, name='task-get-all-or-create'),
+    # path('tasks/statistics/', tasks_.tasks_aggregate_all, name='tasks-statistics'),
+    path('tasks/statistics/', TaskStatistics.as_view(), name='tasks-statistics'),
+    # path('tasks/<uuid:pk>/', tasks_.tasks_requests, name='task-get-one-or-update-or-delete'),
+    # path('tasks/', tasks_.tasks_requests, name='task-get-all-or-create'),
+    path('tasks/<uuid:pk>/', TaskDetailUpdateDeleteView.as_view(), name='task-get-one-or-update-or-delete'),
+    path('tasks/', TaskListCreateView.as_view(), name='task-get-all-or-create'),
     path('subtasks/<uuid:pk>/', SubTaskDetailUpdateDeleteView.as_view(), name='subtask-get-update-delete'),
     path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-get-all-or-create'),
     # path('tasks/count/', tasks_.tasks_count_all, name='task-count-all'),
