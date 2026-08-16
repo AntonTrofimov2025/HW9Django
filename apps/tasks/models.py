@@ -4,12 +4,24 @@ from django.utils.translation import gettext_lazy as _
 from apps.core.models import UniqueId, Statuses
 from django.utils import timezone
 from django.db.models.functions import TruncDate
-
+from apps.tasks.managers import CategorySoftDeleteManager
 
 
 
 class Category(UniqueId):
     name = models.CharField(max_length=50, validators=[MinLengthValidator(3)], verbose_name='Category name')
+    deleted_at = models.DateTimeField(null=True, verbose_name=_('Deleted at'))
+
+    @property
+    def is_deleted(self):
+        return self.deleted_at is not None
+
+    objects = CategorySoftDeleteManager()
+    all_objects = models.Manager()
+
+    def delete(self, *args, **kwargs):
+        self.deleted_at = timezone.now()
+        self.save(update_fields=['deleted_at'])
 
     def __str__(self):
         return f'Category {self.name}'

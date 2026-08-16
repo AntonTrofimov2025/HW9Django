@@ -1,11 +1,16 @@
 from django.contrib import admin
 from .models import Category, Task, SubTask, Statuses
+from django.utils.translation import gettext_lazy as _
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'show_is_deleted', 'deleted_at')
     ordering = ('-name',)
+
+    @admin.display(boolean=True, description=_('Deleted?'))
+    def show_is_deleted(self, category):
+        return category.is_deleted
 
 
 class SubTaskInline(admin.StackedInline):
