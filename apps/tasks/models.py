@@ -9,7 +9,7 @@ from apps.tasks.managers import CategorySoftDeleteManager
 
 
 class Category(UniqueId):
-    name = models.CharField(max_length=50, validators=[MinLengthValidator(3)], verbose_name='Category name')
+    name = models.CharField(max_length=50, unique=True, validators=[MinLengthValidator(3)], verbose_name='Category name')
     deleted_at = models.DateTimeField(null=True, verbose_name=_('Deleted at'))
 
     @property

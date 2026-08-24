@@ -6,12 +6,15 @@ from apps.tasks.serializers import CategorySerializer, CategoryCreateSerializer
 from django.db import transaction
 from rest_framework.decorators import action
 from django.db.models import Count
+from rest_framework.filters import OrderingFilter
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
 
     queryset = Category.objects.prefetch_related('tasks', 'tasks__subtasks')
     serializer_class = CategorySerializer
+    filter_backends = [OrderingFilter]
+    ordering = ['name']
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

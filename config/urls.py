@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.home.urls')),
     path('', include('apps.tasks.urls')),
-    path('', include('apps.tasks.viewset_urls'))
+    path('', include('apps.tasks.viewset_urls')),
+    path('api/', include('apps.tasks.token_urls'))
 ]
