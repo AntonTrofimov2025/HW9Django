@@ -14,7 +14,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.prefetch_related('tasks', 'tasks__subtasks')
     serializer_class = CategorySerializer
     filter_backends = [OrderingFilter]
-    ordering = ['name']
+    ordering_fields = ['name']
+    ordering = ('name',)
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
