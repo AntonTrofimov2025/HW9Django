@@ -1,19 +1,27 @@
 from rest_framework.generics import (ListCreateAPIView,
                                      RetrieveUpdateDestroyAPIView,
-                                     GenericAPIView, ListAPIView)
+                                     GenericAPIView, ListAPIView, CreateAPIView)
+from rest_framework.views import APIView
 from apps.tasks.models import SubTask, Task
-from .serializers import (SubTaskSerializer, SubTaskCreateSerializer,
+from .serializers import (SubTaskSerializer, SubTaskCreateSerializer, RegisterSerializer,
                           TaskSerializer, TaskDetailSerializer, TaskCreateSerializer)
 from .paginators import SubTaskPaginator, TaskPaginator
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.exceptions import ValidationError
 from django.utils import timezone
 from rest_framework.response import Response
 from django.db.models import Q, Count
 from rest_framework import status
 from apps.core.models import Statuses
 from .permissions import IsOwnerOrReadOnly
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.serializers import TokenBlacklistSerializer
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 
 class SubTaskListCreateView(ListCreateAPIView):
@@ -87,4 +95,27 @@ class TaskStatistics(GenericAPIView):
         **{f'{status__.value}_count': Count('id', filter=Q(status=status__.value)) for status__ in Statuses})
         return Response({'Statistics': tasks_aggregation}, status=status.HTTP_200_OK)
 
+class LogOut(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=TokenBlacklistSerializer,
+        responses={200: OpenApiResponse(description="You've been successfully logged out! :)"),
+                   400: OpenApiResponse(description='Token is invalid or expired.'),
+                   401: OpenApiResponse(description="Authentication credentials were not provided.")}
+    )
+    def post(self, request, *args, **kwargs):
+        if not (refresh_token := request.data.get('refresh')):
+            raise ValidationError({'detail': 'Refresh token is required.'})
+        try:
+            refresh = RefreshToken(refresh_token)
+            refresh.blacklist()
+            return Response({'msg': "You've been successfully logged out! :)"}, status=status.HTTP_200_OK)
+        except TokenError:
+            raise ValidationError({'detail': 'Token is invalid or expired.'})
+
+class RegisterView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
 
