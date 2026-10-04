@@ -5,8 +5,9 @@ from apps.core.models import UniqueId, Statuses
 from django.utils import timezone
 from django.db.models.functions import TruncDate
 from apps.tasks.managers import CategorySoftDeleteManager
+from django.contrib.auth import get_user_model
 
-
+User = get_user_model()
 
 class Category(UniqueId):
     name = models.CharField(max_length=50, unique=True, validators=[MinLengthValidator(3)], verbose_name='Category name')
@@ -48,6 +49,7 @@ class Task(UniqueId):
     categories = models.ManyToManyField('Category', related_name='tasks', help_text="Category for every task")
     status = models.CharField(max_length=12, choices=Statuses, verbose_name='Status')
     deadline = models.DateTimeField(verbose_name='DEADLINE')
+    owner = models.ForeignKey(User, related_name='tasks', on_delete=models.CASCADE, verbose_name='Owner')
 
     def __str__(self):
         return f'Task {self.title}'
@@ -78,6 +80,7 @@ class SubTask(UniqueId):
     deadline = models.DateTimeField(verbose_name='DEADLINE')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Creation date')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Updated at')
+    owner = models.ForeignKey(User, related_name='subtasks', on_delete=models.CASCADE, verbose_name='Owner')
 
     def __str__(self):
         return f'Subtask {self.title}'

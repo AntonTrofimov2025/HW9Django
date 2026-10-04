@@ -17,7 +17,7 @@ Including another URLconf
 from django.urls import path
 from . import views as tasks_
 # from .api_views import SubTaskDetailUpdateDeleteView, SubTaskListCreateView
-from .generic_api_views import (TaskStatistics, SubTaskDetailUpdateDeleteView,
+from .generic_api_views import (TaskStatistics, SubTaskDetailUpdateDeleteView, CurrentUserTasksView,
                                 SubTaskListCreateView, TaskDetailUpdateDeleteView, TaskListCreateView)
 
 urlpatterns = [
@@ -29,6 +29,7 @@ urlpatterns = [
     path('tasks/', TaskListCreateView.as_view(), name='task-get-all-or-create'),
     path('subtasks/<uuid:pk>/', SubTaskDetailUpdateDeleteView.as_view(), name='subtask-get-update-delete'),
     path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-get-all-or-create'),
+    path('me/tasks/', CurrentUserTasksView.as_view(), name='owner-get-all-tasks'),
     # path('tasks/count/', tasks_.tasks_count_all, name='task-count-all'),
     # path('tasks/status/<str:status_>', tasks_.tasks_by_status, name='task-count-by-status'),
     # path('tasks/expired/', tasks_.tasks_expired_date, name='task-expired-date')

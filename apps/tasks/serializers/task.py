@@ -9,15 +9,16 @@ from apps.tasks.models import SubTask
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['title', 'description', 'status', 'deadline']
+        fields = ['title', 'description', 'status', 'deadline', 'owner']
+        read_only_fields = ['created_at', 'updated_at', 'owner']
 
 class SubTaskSerializer(serializers.ModelSerializer):
     task = TaskSerializer(read_only=True)
 
     class Meta:
         model = SubTask
-        fields = ['title', 'description', 'status', 'deadline', 'created_at', 'updated_at', 'task']
-        read_only_fields = ['created_at', 'updated_at']
+        fields = ['title', 'description', 'status', 'deadline', 'created_at', 'updated_at', 'task', 'owner']
+        read_only_fields = ['created_at', 'updated_at', 'owner']
 
 
 class TaskDetailSerializer(serializers.ModelSerializer):
@@ -25,14 +26,14 @@ class TaskDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['title', 'description', 'status', 'deadline', 'subtasks']
-        read_only_fields = ['subtasks']
+        fields = ['title', 'description', 'status', 'deadline', 'subtasks', 'owner']
+        read_only_fields = ['subtasks', 'owner']
 
 class TaskCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['title', 'description', 'status', 'deadline']
-        read_only_fields = ['id']
+        fields = ['title', 'description', 'status', 'deadline', 'owner']
+        read_only_fields = ['id', 'owner']
 
     def validate_deadline(self, value):
         now = timezone.now()

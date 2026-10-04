@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
+    'drf_spectacular',
 
     'apps.home.apps.HomeConfig',
     'apps.tasks.apps.TasksConfig',
@@ -81,6 +82,7 @@ TEMPLATES = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'apps.core.paginators.CommonPaginator',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication'
     ],
@@ -97,8 +99,19 @@ REST_FRAMEWORK = {
     # }
 }
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'HW19 OpenAPI',
+    'DESCRIPTION': 'HW19 is DONE!',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SECURITY': [{
+        'jwtAuth': []
+    }],
+    'COMPONENT_SPLIT_REQUEST': True,
+}
+
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1)
 }
 

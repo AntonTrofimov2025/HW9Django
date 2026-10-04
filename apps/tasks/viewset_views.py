@@ -23,7 +23,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return CategorySerializer
 
     @action(detail=False, methods=['get'], url_name='count', url_path='count')
-    def count_tasks(self, *args, **kwargs):
+    def count_tasks(self, request, *args, **kwargs):
         all_tasks = Category.objects.annotate(tasks_count=Count('tasks__id')).values('name', 'tasks_count')
         return Response(list(all_tasks), status=status.HTTP_200_OK)
 

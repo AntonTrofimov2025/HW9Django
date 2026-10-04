@@ -1,6 +1,6 @@
 from rest_framework.generics import (ListCreateAPIView,
                                      RetrieveUpdateDestroyAPIView,
-                                     GenericAPIView)
+                                     GenericAPIView, ListAPIView)
 from apps.tasks.models import SubTask, Task
 from .serializers import (SubTaskSerializer, SubTaskCreateSerializer,
                           TaskSerializer, TaskDetailSerializer, TaskCreateSerializer)
@@ -12,6 +12,8 @@ from rest_framework.response import Response
 from django.db.models import Q, Count
 from rest_framework import status
 from apps.core.models import Statuses
+from .permissions import IsOwnerOrReadOnly
+from rest_framework.permissions import IsAuthenticated
 
 
 class SubTaskListCreateView(ListCreateAPIView):
@@ -30,11 +32,14 @@ class SubTaskListCreateView(ListCreateAPIView):
             return SubTaskCreateSerializer
         return SubTaskSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 class SubTaskDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
 
     queryset = SubTask.objects.select_related('task').all()
     serializer_class = SubTaskSerializer
-
+    permission_classes = [IsOwnerOrReadOnly]
 
 class TaskListCreateView(ListCreateAPIView):
 
@@ -52,10 +57,21 @@ class TaskListCreateView(ListCreateAPIView):
             return TaskCreateSerializer
         return TaskSerializer
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+class CurrentUserTasksView(ListAPIView):
+    serializer_class = TaskSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Task.objects.filter(owner=self.request.user).prefetch_related('categories', 'subtasks')
+
 class TaskDetailUpdateDeleteView(RetrieveUpdateDestroyAPIView):
 
     queryset = Task.objects.prefetch_related('categories', 'subtasks').all()
     serializer_class = TaskSerializer
+    permission_classes = [IsOwnerOrReadOnly]
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
